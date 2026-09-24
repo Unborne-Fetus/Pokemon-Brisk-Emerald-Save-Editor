@@ -1,3 +1,17 @@
+## License
+
+Brisk Dex's original source code is licensed under the **PolyForm Noncommercial License 1.0.0**.
+
+You are free to study, modify, and redistribute the software for noncommercial purposes, including personal learning, research, experimentation, and hobby projects.
+
+**Commercial use is not permitted under this license.** This includes using Brisk Dex or derivative works for commercial purposes or selling copies or derivative versions.
+
+Pokémon-related names, assets, artwork, game data, trademarks, and other material belonging to third parties are **not** licensed by this notice and remain the property of their respective owners.
+
+See the `LICENSE` file for the complete license terms.
+
+
+
 Made with Claude vibe coding
 
 
