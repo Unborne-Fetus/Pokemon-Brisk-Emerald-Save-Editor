@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brisk Dex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1811;
+  --bg-deep:#08110c;
+  --panel:#132720;
+  --panel-2:#0f1e18;
+  --line:#25453b;
+  --line-soft:#1b332b;
+  --accent:#c99a3a;
+  --accent-soft:#8a6b28;
+  --leaf:#4fae7a;
+  --leaf-bright:#7ee0a8;
+  --text:#eef2ea;
+  --muted:#93a99b;
+  --muted-2:#5f7568;
+  --danger:#e2635a;
+  --hp-full:#7ee0a8;
+  --hp-mid:#e0c257;
+  --hp-low:#e2635a;
+  --radius:10px;
+  --font-display:'Press Start 2P', monospace;
+  --font-body:'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 15% 0%, #16332777 0%, transparent 45%),
+    radial-gradient(circle at 100% 20%, #1a2f2333 0%, transparent 40%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{ background:var(--accent); color:#101a14;}
+a{color:var(--leaf-bright);}
+
+.wrap{ max-width:1180px; margin:0 auto; padding:28px 20px 80px; }
+
+/* ---------- header ---------- */
+header.top{
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  flex-wrap:wrap;
+  padding-bottom:22px; margin-bottom:26px;
+  border-bottom:1px solid var(--line-soft);
+}
+.brand{ display:flex; align-items:center; gap:14px; }
+.brand-mark{
+  width:40px; height:40px; border-radius:9px;
+  background:linear-gradient(155deg, var(--leaf) 0%, #2c6b48 60%, #163827 100%);
+  border:1px solid #3c8a63;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 0 3px #0f1e18, 0 4px 14px -4px #0009;
+  flex-shrink:0;
+}
+.brand-mark svg{ width:22px; height:22px; }
+.brand h1{
+  font-family:var(--font-display);
+  font-size:15px;
+  margin:0 0 6px;
+  letter-spacing:0.5px;
+  color:var(--leaf-bright);
+  text-shadow:0 0 18px #4fae7a44;
+}
+.brand p{ margin:0; color:var(--muted); font-size:13px; }
+.top-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+
+button, .btn{
+  font-family:var(--font-body);
+  font-weight:600;
+  font-size:13.5px;
+  color:var(--text);
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px 16px;
+  cursor:pointer;
+  transition:border-color .15s ease, transform .1s ease, background .15s ease;
+  display:inline-flex; align-items:center; gap:8px;
+}
+button:hover, .btn:hover{ border-color:var(--leaf); background:#16302579; }
+button:active{ transform:translateY(1px); }
+button.primary{
+  background:linear-gradient(180deg, #4fae7a, #38875e);
+  border-color:#5fc08c;
+  color:#0a160f;
+}
+button.primary:hover{ background:linear-gradient(180deg, #5cc088, #3f9668); }
+button.ghost{ background:transparent; }
+button:focus-visible, .btn:focus-visible, input:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--leaf-bright); outline-offset:2px;
+}
+input[type=file]{ display:none; }
+
+/* ---------- drop / empty state ---------- */
+.dropzone{
+  border:1.5px dashed var(--line);
+  border-radius:var(--radius);
+  padding:56px 24px;
+  text-align:center;
+  background:var(--panel-2);
+  transition:border-color .15s ease, background .15s ease;
+}
+.dropzone.drag{ border-color:var(--leaf-bright); background:#123024; }
+.dropzone .icon{ font-size:34px; margin-bottom:14px; opacity:.85; }
+.dropzone h2{ font-size:17px; margin:0 0 8px; }
+.dropzone p{ color:var(--muted); font-size:13.5px; max-width:440px; margin:0 auto 22px; }
+.dropzone .hint{ margin-top:18px; font-size:12px; color:var(--muted-2); }
+
+.error-banner{
+  background:#2a1616; border:1px solid #5c2b28; color:#f3b6b0;
+  border-radius:8px; padding:12px 16px; font-size:13.5px; margin-bottom:18px;
+}
+.notice-banner{
+  background:#16261a; border:1px solid #2b4a35; color:#bfe0c8;
+  border-radius:8px; padding:12px 16px; font-size:13px; margin-bottom:18px;
+}
+
+/* ---------- trainer card ---------- */
+.trainer-card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:20px 24px;
+  display:flex; flex-wrap:wrap; gap:28px; align-items:center;
+  margin-bottom:26px;
+}
+.trainer-id{ display:flex; align-items:center; gap:14px; }
+.trainer-badge{
+  width:52px; height:52px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #7ee0a8, #2c6b48 70%);
+  border:2px solid #163827;
+  flex-shrink:0;
+}
+.trainer-id h2{ margin:0 0 4px; font-size:19px; }
+.trainer-id span{ color:var(--muted); font-size:12.5px; }
+.trainer-stats{
+  display:flex; gap:28px; flex-wrap:wrap; margin-left:auto;
+}
+.stat{ min-width:76px; }
+.stat .label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted-2); margin-bottom:4px; }
+.stat .value{ font-size:15px; font-weight:600; }
+
+/* ---------- section headings ---------- */
+.section-heading{
+  display:flex; align-items:baseline; gap:10px; margin:0 0 14px;
+}
+.section-heading h3{ font-size:13px; margin:0; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; }
+.section-heading .count{ font-size:12px; color:var(--muted-2); }
+
+/* ---------- party ---------- */
+.party-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+  gap:12px; margin-bottom:36px;
+}
+.mon-card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  cursor:pointer;
+  transition:border-color .15s ease, transform .1s ease;
+}
+.mon-card:hover{ border-color:var(--leaf); transform:translateY(-1px); }
+.mon-card .row1{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;}
+.card-icon{
+  width:32px; height:32px; border-radius:8px; flex-shrink:0;
+  background:radial-gradient(circle at 35% 30%, var(--leaf-bright), #2c6b48 70%);
+  image-rendering: pixelated;
+}
+.mon-card .name{ font-weight:600; font-size:14.5px; }
+.mon-card .species{ font-size:11.5px; color:var(--muted); }
+.mon-card .lvl{
+  font-size:11px; font-weight:700; color:#0a160f; background:var(--accent);
+  border-radius:6px; padding:3px 7px; flex-shrink:0;
+}
+.hp-bar{ height:6px; border-radius:4px; background:#1c332a; overflow:hidden; margin-bottom:6px;}
+.hp-bar > div{ height:100%; border-radius:4px; }
+.mon-card .hp-text{ font-size:11px; color:var(--muted); margin-bottom:8px; }
+.types-row{ display:flex; gap:5px; flex-wrap:wrap; }
+.type-pill{
+  font-size:10px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+  padding:2.5px 8px; border-radius:20px; color:#0a160f; background:var(--muted-2);
+}
+.mon-card .moves-mini{ margin-top:8px; font-size:11px; color:var(--muted-2); }
+
+/* ---------- PC boxes ---------- */
+.pc-panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+.box-tabs{
+  display:flex; overflow-x:auto; border-bottom:1px solid var(--line);
+  background:var(--panel-2); scrollbar-width:thin;
+}
+.box-tabs button{
+  border:none; border-radius:0; background:transparent; flex-shrink:0;
+  padding:12px 16px; font-size:12.5px; color:var(--muted); border-bottom:2px solid transparent;
+}
+.box-tabs button.active{ color:var(--leaf-bright); border-bottom-color:var(--leaf-bright); background:#12251d; }
+.box-tabs button:hover{ color:var(--text); }
+
+.box-grid{
+  display:grid; grid-template-columns:repeat(6, 1fr); gap:8px;
+  padding:18px;
+}
+@media (max-width:640px){ .box-grid{ grid-template-columns:repeat(3, 1fr);} }
+
+.slot{
+  aspect-ratio:1; border-radius:8px; border:1px solid var(--line-soft);
+  background:var(--panel-2);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; position:relative; padding:6px 4px; text-align:center;
+  transition:border-color .15s ease, background .15s ease;
+}
+.slot:hover{ border-color:var(--leaf); background:#16302579; }
+.slot.empty{ cursor:default; opacity:.35; }
+.slot.empty:hover{ border-color:var(--line-soft); background:var(--panel-2); }
+.slot .mini-icon{
+  width:26px; height:26px; border-radius:50%; margin-bottom:5px;
+  background:radial-gradient(circle at 35% 30%, var(--leaf-bright), #2c6b48 70%);
+  flex-shrink:0;
+}
+.slot .mini-name{ font-size:10px; font-weight:600; line-height:1.15; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.slot .mini-lvl{ font-size:9px; color:var(--muted-2); }
+.slot .shiny-star{ position:absolute; top:3px; right:5px; font-size:10px; color:var(--accent); }
+
+/* ---------- modal ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:#05090699; backdrop-filter:blur(2px);
+  display:flex; align-items:center; justify-content:center; padding:20px; z-index:50;
+}
+.modal{
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  max-width:560px; width:100%; max-height:86vh; overflow-y:auto;
+  padding:26px;
+}
+.modal h2{ margin:0 0 2px; font-size:20px; }
+.modal .sub{ color:var(--muted); font-size:12.5px; margin-bottom:18px; }
+.modal-close{ float:right; }
+.detail-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 22px; margin:18px 0; }
+.detail-grid .full{ grid-column:1/-1; }
+.detail-grid .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted-2); margin-bottom:3px; }
+.detail-grid .v{ font-size:14px; }
+.stat-table{ width:100%; border-collapse:collapse; margin-top:6px; font-size:13px; }
+.stat-table td{ padding:5px 8px; border-bottom:1px solid var(--line-soft); }
+.stat-table td:first-child{ color:var(--muted); }
+.stat-table td:last-child{ text-align:right; font-weight:600; }
+.moves-list{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
+.move-chip{ background:var(--panel-2); border:1px solid var(--line-soft); border-radius:7px; padding:7px 10px; font-size:12.5px; }
+.move-chip .pp{ color:var(--muted-2); font-size:11px; }
+
+/* ---------- data loader panel ---------- */
+.loader-panel{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:18px 22px; margin-bottom:22px; font-size:13px; color:var(--muted);
+}
+.loader-panel strong{ color:var(--text); }
+.loader-panel .row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:10px;}
+.loader-panel code{ background:var(--panel-2); border:1px solid var(--line-soft); padding:1px 6px; border-radius:5px; font-size:12px; }
+.tag-ok{ color:var(--leaf-bright); }
+
+footer.foot{ text-align:center; color:var(--muted-2); font-size:11.5px; margin-top:60px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v6c0 5 4 8.5 9 9 5-.5 9-4 9-9V7l-9-5z" stroke="#eafbf0" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 8v6M9 11h6" stroke="#eafbf0" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1>BRISK DEX</h1>
+        <p>Companion app &middot; Pok&eacute;mon Brisk Emerald</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="ghost" id="btn-load-data">Load species/move data</button>
+      <button class="ghost" id="btn-load-icons">Load icon folder</button>
+      <button class="primary" id="btn-load-sav">Load .sav file</button>
+      <input type="file" id="file-sav" accept=".sav">
+      <input type="file" id="file-data" accept=".json">
+    </div>
+  </header>
+
+  <div id="dirty-bar" class="loader-panel" style="display:none; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; border-color:var(--accent-soft);">
+    <span>You have unsaved deposits/withdrawals.</span>
+    <button class="primary" id="btn-save-changes">Save changes</button>
+  </div>
+
+  <div id="data-status" class="loader-panel" style="display:none;"></div>
+  <div id="error-area"></div>
+
+  <div id="empty-state" class="dropzone">
+    <div class="icon">&#128190;</div>
+    <h2>Drop in a save file</h2>
+    <p>Drag a Brisk Emerald <code>.sav</code> file here, or use &ldquo;Load .sav file&rdquo; above. Nothing leaves your browser &mdash; the file is read and parsed locally.</p>
+    <button class="primary" id="btn-load-sav-2">Choose .sav file</button>
+    <div class="hint">Standard Gen III save format (pokeemerald / pokeemerald-expansion)</div>
+  </div>
+
+  <div id="app-content" style="display:none;">
+    <div id="trainer-card" class="trainer-card"></div>
+
+    <div class="section-heading"><h3>Party</h3><span class="count" id="party-count"></span></div>
+    <div class="party-grid" id="party-grid"></div>
+
+    <div class="section-heading"><h3>PC Boxes</h3><span class="count" id="box-count"></span></div>
+    <div class="pc-panel">
+      <div class="box-tabs" id="box-tabs"></div>
+      <div class="box-grid" id="box-grid"></div>
+    </div>
+
+    <div id="storage-section" style="margin-top:36px;">
+      <div class="section-heading"><h3>External Storage</h3><span class="count" id="storage-count"></span></div>
+      <p style="color:var(--muted); font-size:13px; margin:-6px 0 14px;">Pok&eacute;mon kept here live outside any single save file &mdash; deposit from a box or party, then withdraw into any save you load, including a different file.</p>
+      <div class="party-grid" id="storage-grid"></div>
+    </div>
+  </div>
+
+  <footer class="foot">Brisk Dex &middot; reads Gen III GBA save data entirely in your browser</footer>
+</div>
+
+
+<div id="modal-root"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   Gen III character encoding (Western / English)
+   ============================================================ */
+var CHARMAP = {};
+(function(){
+  var t = CHARMAP;
+  t[0x00] = ' ';
+  var accented = {0x01:'À',0x02:'Á',0x03:'Â',0x04:'Ç',0x05:'È',0x06:'É',0x07:'Ê',0x08:'Ë',0x09:'Ì',0x0B:'Î',0x0C:'Ï',0x0D:'Ò',0x0E:'Ó',0x0F:'Ô',
+    0x10:'Œ',0x11:'Ù',0x12:'Ú',0x13:'Û',0x14:'Ñ',0x15:'ß',0x16:'à',0x17:'á',0x19:'ç',0x1A:'è',0x1B:'é',0x1C:'ê',0x1D:'ë',0x1E:'ì',
+    0x20:'î',0x21:'ï',0x22:'ò',0x23:'ó',0x24:'ô',0x25:'œ',0x26:'ù',0x27:'ú',0x28:'û',0x29:'ñ',0x2A:'º',0x2B:'ª',0x2D:'&',0x2E:'+',
+    0x34:'Lv',0x35:'=',0x36:';',
+    0x50:' ',0x51:'¿',0x52:'¡',0x5A:'Í',0x5B:'%',0x5C:'(',0x5D:')',
+    0x68:'â',0x6F:'í',
+    0x79:'↑',0x7A:'↓',0x7B:'←',0x7C:'→',
+    0x84:'e',0x85:'<',0x86:'>',
+    0xA0:'re',0xA1:'0',0xA2:'1',0xA3:'2',0xA4:'3',0xA5:'4',0xA6:'5',0xA7:'6',0xA8:'7',0xA9:'8',0xAA:'9',
+    0xAB:'!',0xAC:'?',0xAD:'.',0xAE:'-',0xAF:'·',
+    0xB0:'…',0xB1:'“',0xB2:'”',0xB3:'‘',0xB4:'’',0xB5:'♂',0xB6:'♀',0xB7:'$',0xB8:',',0xB9:'×',0xBA:'/'
+  };
+  Object.keys(accented).forEach(function(k){ t[k] = accented[k]; });
+  var upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for (var i=0;i<26;i++){ t[0xBB+i] = upper[i]; }
+  var lower = "abcdefghijklmnopqrstuvwxyz";
+  for (var i=0;i<26;i++){ t[0xD5+i] = lower[i]; }
+  t[0xF0] = ':'; t[0xF1]='Ä'; t[0xF2]='Ö'; t[0xF3]='Ü'; t[0xF4]='ä'; t[0xF5]='ö'; t[0xF6]='ü';
+  t[0xEF] = '►';
+})();
+
+function decodeGen3String(bytes){
+  var out = '';
+  for (var i=0;i<bytes.length;i++){
+    var b = bytes[i];
+    if (b === 0xFF) break;
+    out += (CHARMAP[b] !== undefined) ? CHARMAP[b] : '';
+  }
+  return out.trim();
+}
+
+var NATURES = ["Hardy","Lonely","Brave","Adamant","Naughty","Bold","Docile","Relaxed","Impish","Lax",
+  "Timid","Hasty","Serious","Jolly","Naive","Modest","Mild","Quiet","Bashful","Rash",
+  "Calm","Gentle","Sassy","Careful","Quirky"];
+
+var TYPE_COLORS = { "Normal":"#a3a48a","Fire":"#e2734f","Water":"#5f9bdc","Electric":"#e3c94a","Grass":"#6fbf6f",
+  "Ice":"#84d6d0","Fighting":"#c8564a","Poison":"#a15fb5","Ground":"#c9a95f","Flying":"#93a9e0",
+  "Psychic":"#e26b9a","Bug":"#a9bc42","Rock":"#b8a15f","Ghost":"#6c5f9c","Dragon":"#6f5fd6",
+  "Dark":"#6e6155","Steel":"#9aa4ad","Fairy":"#e0a0c4" };
+
+/* ============================================================
+   Substructure order table (personality % 24)
+   ============================================================ */
+var SUB_ORDERS = [
+  "GAEM","GAME","GEAM","GEMA","GMAE","GMEA",
+  "AGEM","AGME","AEGM","AEMG","AMGE","AMEG",
+  "EGAM","EGMA","EAGM","EAMG","EMGA","EMAG",
+  "MGAE","MGEA","MAGE","MAEG","MEGA","MEAG"
+];
+
+/* ============================================================
+   Byte-level helpers
+   ============================================================ */
+function u16(view, off){ return view.getUint16(off, true); }
+function u32(view, off){ return view.getUint32(off, true); }
+function u8(view, off){ return view.getUint8(off); }
+
+/* ============================================================
+   Save file parsing
+   ============================================================ */
+var SECTION_SIZE = 4096;
+var SECTION_DATA_SIZE = 3968;
+var SIGNATURE = 0x08012025;
+
+function readBlock(bytes, blockOffset){
+  var sections = {};
+  var fileOffsets = {};
+  var lastIndexSaveIdx = -1;
+  var anyValid = false;
+  for (var i=0;i<14;i++){
+    var off = blockOffset + i*SECTION_SIZE;
+    if (off + SECTION_SIZE > bytes.length) continue;
+    var view = new DataView(bytes.buffer, bytes.byteOffset + off, SECTION_SIZE);
+    var sig = u32(view, 0xFF8);
+    var id = u16(view, 0xFF4);
+    var saveIdx = u32(view, 0xFFC);
+    var valid = (sig === SIGNATURE);
+    if (valid){
+      anyValid = true;
+      sections[id] = bytes.subarray(off, off + SECTION_DATA_SIZE);
+      fileOffsets[id] = off;
+    }
+    if (i === 13) lastIndexSaveIdx = saveIdx;
+  }
+  return { sections:sections, fileOffsets:fileOffsets, saveIndex: lastIndexSaveIdx, valid: anyValid };
+}
+
+/* ---- checksum + write-back helpers (used by deposit/withdraw) ---- */
+var SECTION_CHECKSUM_SIZE = {0:3884,1:3968,2:3968,3:3968,4:3848,5:3968,6:3968,7:3968,8:3968,9:3968,10:3968,11:3968,12:3968,13:2000};
+
+function computeSectionChecksum(view, size){
+  var sum = 0;
+  var wordCount = size >> 2;
+  for (var w=0; w<wordCount; w++){
+    var word = view.getUint32(w*4, true);
+    sum = (sum + word) >>> 0;
+  }
+  return ((sum >>> 16) + (sum & 0xFFFF)) & 0xFFFF;
+}
+
+function recomputeChecksum(save, sectionId){
+  var view = save._internal.sectionView[sectionId];
+  var size = SECTION_CHECKSUM_SIZE[sectionId];
+  var dv = new DataView(view.buffer, view.byteOffset, view.length);
+  var checksum = computeSectionChecksum(dv, size);
+  var fileOff = save._internal.sectionFileOffset[sectionId];
+  var masterDV = new DataView(save._internal.rawBytes.buffer, save._internal.rawBytes.byteOffset, save._internal.rawBytes.byteLength);
+  masterDV.setUint16(fileOff + 0xFF6, checksum, true);
+}
+
+/* logical offset (within the 33744-byte PC buffer, where byte 0-3 is "current box")
+   maps across sections 5-13. This writer splits a byte range across section
+   boundaries as needed and returns which section ids were touched. */
+var PC_SEC_IDS = [5,6,7,8,9,10,11,12,13];
+var PC_SEC_SIZES = [3968,3968,3968,3968,3968,3968,3968,3968,2000];
+var PC_SEC_STARTS = (function(){ var arr=[0]; for (var i=0;i<PC_SEC_SIZES.length;i++) arr.push(arr[i]+PC_SEC_SIZES[i]); return arr; })();
+
+function writeLogicalPCBytes(save, logicalOffset, bytes){
+  var touched = {};
+  var remaining = bytes.length;
+  var srcPos = 0;
+  var pos = logicalOffset;
+  while (remaining > 0){
+    var idx = -1;
+    for (var i=0;i<PC_SEC_IDS.length;i++){
+      if (pos >= PC_SEC_STARTS[i] && pos < PC_SEC_STARTS[i+1]){ idx = i; break; }
+    }
+    if (idx === -1) throw new Error('PC storage offset out of range.');
+    var sectionId = PC_SEC_IDS[idx];
+    var offsetInSection = pos - PC_SEC_STARTS[idx];
+    var availableInSection = PC_SEC_SIZES[idx] - offsetInSection;
+    var chunkLen = Math.min(availableInSection, remaining);
+    var view = save._internal.sectionView[sectionId];
+    view.set(bytes.subarray(srcPos, srcPos+chunkLen), offsetInSection);
+    touched[sectionId] = true;
+    pos += chunkLen; srcPos += chunkLen; remaining -= chunkLen;
+  }
+  return Object.keys(touched).map(Number);
+}
+
+function writePartyBytes(save, offsetInSection1, bytes){
+  var view = save._internal.sectionView[1];
+  view.set(bytes, offsetInSection1);
+}
+
+function bytesToBase64(bytes){
+  var bin = '';
+  for (var i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function base64ToBytes(b64){
+  var bin = atob(b64);
+  var arr = new Uint8Array(bin.length);
+  for (var i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+function parseSav(arrayBuffer){
+  var bytes = new Uint8Array(arrayBuffer);
+  if (bytes.length < 0x1C000){
+    throw new Error("This file is too small to be a Generation III save file (expected at least 114,688 bytes).");
+  }
+  var blockA = readBlock(bytes, 0x0000);
+  var blockB = readBlock(bytes, 0xE000);
+
+  if (!blockA.valid && !blockB.valid){
+    throw new Error("Could not find a valid Generation III save block in this file. Is it a Gen III .sav (Ruby/Sapphire/Emerald/FireRed/LeafGreen) file?");
+  }
+  var block;
+  if (blockA.valid && blockB.valid){
+    block = (blockA.saveIndex > blockB.saveIndex) ? blockA : blockB;
+  } else {
+    block = blockA.valid ? blockA : blockB;
+  }
+  var sections = block.sections;
+  if (!sections[0] || !sections[1]){
+    throw new Error("Save file is missing required sections (trainer info / team & items). It may be corrupted or from an unsupported game.");
+  }
+
+  var s0 = sections[0], s1 = sections[1];
+  var v0 = new DataView(s0.buffer, s0.byteOffset, s0.length);
+  var v1 = new DataView(s1.buffer, s1.byteOffset, s1.length);
+
+  var trainer = parseTrainer(v0, s0);
+  var securityKey = u32(v0, 0x00AC);
+
+  var teamSize = u32(v1, 0x0234);
+  if (teamSize > 6) teamSize = 6;
+  var party = [];
+  for (var i=0;i<teamSize;i++){
+    var off = 0x0238 + i*100;
+    var slice = s1.subarray(off, off+100);
+    var mon = decodePokemon(slice, true);
+    if (mon) party.push(mon);
+  }
+
+  var moneyRaw = u32(v1, 0x0490);
+  var money = moneyRaw ^ securityKey;
+
+  // PC buffer: sections 5-12 (3968 bytes each) + section 13 (2000 bytes)
+  var pcParts = [];
+  for (var pid=5; pid<=12; pid++){
+    if (!sections[pid]) throw new Error("Save file is missing PC storage section " + pid + ".");
+    pcParts.push(sections[pid]);
+  }
+  if (!sections[13]) throw new Error("Save file is missing PC storage section 13.");
+  pcParts.push(sections[13].subarray(0,2000));
+  var totalLen = 0;
+  pcParts.forEach(function(p){ totalLen += p.length; });
+  var pcBuffer = new Uint8Array(totalLen);
+  var pos = 0;
+  pcParts.forEach(function(p){ pcBuffer.set(p, pos); pos += p.length; });
+
+  var currentBoxView = new DataView(pcBuffer.buffer, pcBuffer.byteOffset, 4);
+  var currentBox = currentBoxView.getUint32(0, true);
+
+  var boxes = [];
+  for (var b=0;b<14;b++){
+    var monsInBox = [];
+    for (var slot=0; slot<30; slot++){
+      var recOff = 4 + (b*30 + slot)*80;
+      var rec = pcBuffer.subarray(recOff, recOff+80);
+      var mon = decodePokemon(rec, false);
+      monsInBox.push(mon);
+    }
+    boxes.push(monsInBox);
+  }
+
+  var boxNamesOff = 4 + 33600;
+  var boxNames = [];
+  for (var b2=0; b2<14; b2++){
+    var nOff = boxNamesOff + b2*9;
+    var nameBytes = pcBuffer.subarray(nOff, nOff+9);
+    var name = decodeGen3String(nameBytes);
+    boxNames.push(name || ("BOX " + (b2+1)));
+  }
+
+  return {
+    trainer: trainer,
+    money: money,
+    party: party,
+    boxes: boxes,
+    boxNames: boxNames,
+    currentBox: currentBox,
+    filePath: null,
+    _internal: {
+      rawBytes: bytes,
+      sectionView: block.sections,
+      sectionFileOffset: block.fileOffsets
+    }
+  };
+}
+
+function parseTrainer(v0, s0){
+  var nameBytes = s0.subarray(0x0000, 0x0007);
+  var name = decodeGen3String(nameBytes);
+  var gender = u8(v0, 0x0008);
+  var idFull = u32(v0, 0x000A);
+  var publicId = idFull & 0xFFFF;
+  var secretId = (idFull >>> 16) & 0xFFFF;
+  var hours = u16(v0, 0x000E);
+  var minutes = u8(v0, 0x0010);
+  var seconds = u8(v0, 0x0011);
+  return {
+    name: name || "TRAINER",
+    gender: gender === 1 ? "Female" : "Male",
+    publicId: publicId,
+    secretId: secretId,
+    hours: hours, minutes: minutes, seconds: seconds
+  };
+}
+
+function decodePokemon(rec, isPartySlot){
+  if (rec.length < 80) return null;
+  var view = new DataView(rec.buffer, rec.byteOffset, rec.length);
+  var personality = u32(view, 0x00);
+  var otId = u32(view, 0x04);
+
+  if (personality === 0 && otId === 0){
+    return { empty:true };
+  }
+
+  var nickname = decodeGen3String(rec.subarray(0x08, 0x08+10));
+  var language = u8(view, 0x12);
+  var otName = decodeGen3String(rec.subarray(0x14, 0x14+7));
+  var markings = u8(view, 0x1B);
+  var checksum = u16(view, 0x1C);
+
+  // decrypt 48-byte data section
+  var key = (otId ^ personality) >>> 0;
+  var dataBytes = new Uint8Array(48);
+  dataBytes.set(rec.subarray(0x20, 0x20+48));
+  var dataView = new DataView(dataBytes.buffer);
+  for (var w=0; w<12; w++){
+    var word = dataView.getUint32(w*4, true);
+    var dec = (word ^ key) >>> 0;
+    dataView.setUint32(w*4, dec, true);
+  }
+
+  var order = SUB_ORDERS[personality % 24];
+  var subOffsets = {};
+  for (var i=0;i<4;i++){ subOffsets[order[i]] = i*12; }
+
+  var gOff = subOffsets['G'], aOff = subOffsets['A'], eOff = subOffsets['E'], mOff = subOffsets['M'];
+
+  var species = dataView.getUint16(gOff+0, true);
+  var heldItem = dataView.getUint16(gOff+2, true);
+  var experience = dataView.getUint32(gOff+4, true);
+  var ppBonuses = dataView.getUint8(gOff+8);
+  var friendship = dataView.getUint8(gOff+9);
+
+  var moves = [
+    dataView.getUint16(aOff+0, true),
+    dataView.getUint16(aOff+2, true),
+    dataView.getUint16(aOff+4, true),
+    dataView.getUint16(aOff+6, true)
+  ];
+  var pp = [
+    dataView.getUint8(aOff+8),
+    dataView.getUint8(aOff+9),
+    dataView.getUint8(aOff+10),
+    dataView.getUint8(aOff+11)
+  ];
+
+  var evs = {
+    hp: dataView.getUint8(eOff+0), atk: dataView.getUint8(eOff+1), def: dataView.getUint8(eOff+2),
+    spd: dataView.getUint8(eOff+3), spa: dataView.getUint8(eOff+4), spdef: dataView.getUint8(eOff+5)
+  };
+
+  var pokerusRaw = dataView.getUint8(mOff+0);
+  var metLocation = dataView.getUint8(mOff+1);
+  var originsInfo = dataView.getUint16(mOff+2, true);
+  var ivEggAbility = dataView.getUint32(mOff+4, true);
+
+  var ivs = {
+    hp: ivEggAbility & 0x1F,
+    atk: (ivEggAbility >>> 5) & 0x1F,
+    def: (ivEggAbility >>> 10) & 0x1F,
+    spd: (ivEggAbility >>> 15) & 0x1F,
+    spa: (ivEggAbility >>> 20) & 0x1F,
+    spdef: (ivEggAbility >>> 25) & 0x1F
+  };
+  var isEgg = ((ivEggAbility >>> 30) & 1) === 1;
+  var abilitySlot = (ivEggAbility >>> 31) & 1;
+
+  var levelMet = originsInfo & 0x7F;
+  var gameOfOrigin = (originsInfo >>> 7) & 0x0F;
+  var ballCaught = (originsInfo >>> 11) & 0x0F;
+  var otGender = (originsInfo >>> 15) & 1;
+
+  var nature = NATURES[personality % 25];
+  var isShiny = (function(){
+    var p1 = personality & 0xFFFF, p2 = (personality >>> 16) & 0xFFFF;
+    var t1 = otId & 0xFFFF, t2 = (otId >>> 16) & 0xFFFF;
+    return (p1 ^ p2 ^ t1 ^ t2) < 8;
+  })();
+
+  var mon = {
+    empty:false,
+    rawRecord: rec.slice(0, isPartySlot ? 100 : 80),
+    personality: personality, otId: otId,
+    nickname: nickname, otName: otName, otGender: otGender === 1 ? "Female":"Male",
+    language: language, markings: markings,
+    species: species, heldItem: heldItem, experience: experience,
+    friendship: friendship, moves: moves, pp: pp, ppBonuses: ppBonuses,
+    evs: evs, ivs: ivs, isEgg: isEgg, abilitySlot: abilitySlot,
+    nature: nature, isShiny: isShiny,
+    pokerus: pokerusRaw, metLocation: metLocation, levelMet: levelMet,
+    gameOfOrigin: gameOfOrigin, ballCaught: ballCaught
+  };
+
+  if (isPartySlot && rec.length >= 100){
+    mon.status = u32(view, 0x50);
+    mon.level = u8(view, 0x54);
+    mon.currentHP = u16(view, 0x56);
+    mon.maxHP = u16(view, 0x58);
+    mon.atk = u16(view, 0x5A);
+    mon.def = u16(view, 0x5C);
+    mon.speed = u16(view, 0x5E);
+    mon.spAtk = u16(view, 0x60);
+    mon.spDef = u16(view, 0x62);
+  } else {
+    // derive an approximate level from experience using a medium-fast curve
+    // (exact curve depends on species growth rate, which we may not have data for)
+    mon.level = estimateLevelFromExp(experience);
+    mon.maxHP = null; mon.currentHP = null;
+  }
+
+  return mon;
+}
+
+function estimateLevelFromExp(exp){
+  // medium-fast growth rate: exp = n^3, used as a rough fallback only
+  var n = Math.cbrt(exp);
+  var lvl = Math.floor(n);
+  if (lvl < 1) lvl = 1;
+  if (lvl > 100) lvl = 100;
+  return lvl;
+}
+
+/* ============================================================
+   Species / move / item name data (user-supplied JSON)
+   ============================================================ */
+var DEFAULT_SPECIES_ARRAY = [["Bulbasaur",["Grass","Poison"]],["Ivysaur",["Grass","Poison"]],["Venusaur",["Grass","Poison"]],["Charmander",["Fire"]],["Charmeleon",["Fire"]],["Charizard",["Fire","Flying"]],["Squirtle",["Water"]],["Wartortle",["Water"]],["Blastoise",["Water"]],["Caterpie",["Bug"]],["Metapod",["Bug"]],["Butterfree",["Bug","Flying"]],["Weedle",["Bug","Poison"]],["Kakuna",["Bug","Poison"]],["Beedrill",["Bug","Poison"]],["Pidgey",["Normal","Flying"]],["Pidgeotto",["Normal","Flying"]],["Pidgeot",["Normal","Flying"]],["Rattata",["Normal"]],["Raticate",["Normal"]],["Spearow",["Normal","Flying"]],["Fearow",["Normal","Flying"]],["Ekans",["Poison"]],["Arbok",["Poison"]],["Pikachu",["Electric"]],["Raichu",["Electric"]],["Sandshrew",["Ground"]],["Sandslash",["Ground"]],["Nidoran-F",["Poison"]],["Nidorina",["Poison"]],["Nidoqueen",["Poison","Ground"]],["Nidoran-M",["Poison"]],["Nidorino",["Poison"]],["Nidoking",["Poison","Ground"]],["Clefairy",["Normal"]],["Clefable",["Normal"]],["Vulpix",["Fire"]],["Ninetales",["Fire"]],["Jigglypuff",["Normal"]],["Wigglytuff",["Normal"]],["Zubat",["Poison","Flying"]],["Golbat",["Poison","Flying"]],["Oddish",["Grass","Poison"]],["Gloom",["Grass","Poison"]],["Vileplume",["Grass","Poison"]],["Paras",["Bug","Grass"]],["Parasect",["Bug","Grass"]],["Venonat",["Bug","Poison"]],["Venomoth",["Bug","Poison"]],["Diglett",["Ground"]],["Dugtrio",["Ground"]],["Meowth",["Normal"]],["Persian",["Normal"]],["Psyduck",["Water"]],["Golduck",["Water"]],["Mankey",["Fighting"]],["Primeape",["Fighting"]],["Growlithe",["Fire"]],["Arcanine",["Fire"]],["Poliwag",["Water"]],["Poliwhirl",["Water"]],["Poliwrath",["Water","Fighting"]],["Abra",["Psychic"]],["Kadabra",["Psychic"]],["Alakazam",["Psychic"]],["Machop",["Fighting"]],["Machoke",["Fighting"]],["Machamp",["Fighting"]],["Bellsprout",["Grass","Poison"]],["Weepinbell",["Grass","Poison"]],["Victreebel",["Grass","Poison"]],["Tentacool",["Water","Poison"]],["Tentacruel",["Water","Poison"]],["Geodude",["Rock","Ground"]],["Graveler",["Rock","Ground"]],["Golem",["Rock","Ground"]],["Ponyta",["Fire"]],["Rapidash",["Fire"]],["Slowpoke",["Water","Psychic"]],["Slowbro",["Water","Psychic"]],["Magnemite",["Electric","Steel"]],["Magneton",["Electric","Steel"]],["Farfetchd",["Normal","Flying"]],["Doduo",["Normal","Flying"]],["Dodrio",["Normal","Flying"]],["Seel",["Water"]],["Dewgong",["Water","Ice"]],["Grimer",["Poison"]],["Muk",["Poison"]],["Shellder",["Water"]],["Cloyster",["Water","Ice"]],["Gastly",["Ghost","Poison"]],["Haunter",["Ghost","Poison"]],["Gengar",["Ghost","Poison"]],["Onix",["Rock","Ground"]],["Drowzee",["Psychic"]],["Hypno",["Psychic"]],["Krabby",["Water"]],["Kingler",["Water"]],["Voltorb",["Electric"]],["Electrode",["Electric"]],["Exeggcute",["Grass","Psychic"]],["Exeggutor",["Grass","Psychic"]],["Cubone",["Ground"]],["Marowak",["Ground"]],["Hitmonlee",["Fighting"]],["Hitmonchan",["Fighting"]],["Lickitung",["Normal"]],["Koffing",["Poison"]],["Weezing",["Poison"]],["Rhyhorn",["Ground","Rock"]],["Rhydon",["Ground","Rock"]],["Chansey",["Normal"]],["Tangela",["Grass"]],["Kangaskhan",["Normal"]],["Horsea",["Water"]],["Seadra",["Water"]],["Goldeen",["Water"]],["Seaking",["Water"]],["Staryu",["Water"]],["Starmie",["Water","Psychic"]],["Mr-Mime",["Psychic","Fairy"]],["Scyther",["Bug","Flying"]],["Jynx",["Ice","Psychic"]],["Electabuzz",["Electric"]],["Magmar",["Fire"]],["Pinsir",["Bug"]],["Tauros",["Normal"]],["Magikarp",["Water"]],["Gyarados",["Water","Flying"]],["Lapras",["Water","Ice"]],["Ditto",["Normal"]],["Eevee",["Normal"]],["Vaporeon",["Water"]],["Jolteon",["Electric"]],["Flareon",["Fire"]],["Porygon",["Normal"]],["Omanyte",["Rock","Water"]],["Omastar",["Rock","Water"]],["Kabuto",["Rock","Water"]],["Kabutops",["Rock","Water"]],["Aerodactyl",["Rock","Flying"]],["Snorlax",["Normal"]],["Articuno",["Ice","Flying"]],["Zapdos",["Electric","Flying"]],["Moltres",["Fire","Flying"]],["Dratini",["Dragon"]],["Dragonair",["Dragon"]],["Dragonite",["Dragon","Flying"]],["Mewtwo",["Psychic"]],["Mew",["Psychic"]],["Chikorita",["Grass"]],["Bayleef",["Grass"]],["Meganium",["Grass"]],["Cyndaquil",["Fire"]],["Quilava",["Fire"]],["Typhlosion",["Fire"]],["Totodile",["Water"]],["Croconaw",["Water"]],["Feraligatr",["Water"]],["Sentret",["Normal"]],["Furret",["Normal"]],["Hoothoot",["Normal","Flying"]],["Noctowl",["Normal","Flying"]],["Ledyba",["Bug","Flying"]],["Ledian",["Bug","Flying"]],["Spinarak",["Bug","Poison"]],["Ariados",["Bug","Poison"]],["Crobat",["Poison","Flying"]],["Chinchou",["Water","Electric"]],["Lanturn",["Water","Electric"]],["Pichu",["Electric"]],["Cleffa",["Normal"]],["Igglybuff",["Normal"]],["Togepi",["Normal"]],["Togetic",["Normal","Flying"]],["Natu",["Psychic","Flying"]],["Xatu",["Psychic","Flying"]],["Mareep",["Electric"]],["Flaaffy",["Electric"]],["Ampharos",["Electric"]],["Bellossom",["Grass"]],["Marill",["Water"]],["Azumarill",["Water"]],["Sudowoodo",["Rock"]],["Politoed",["Water"]],["Hoppip",["Grass","Flying"]],["Skiploom",["Grass","Flying"]],["Jumpluff",["Grass","Flying"]],["Aipom",["Normal"]],["Sunkern",["Grass"]],["Sunflora",["Grass"]],["Yanma",["Bug","Flying"]],["Wooper",["Water","Ground"]],["Quagsire",["Water","Ground"]],["Espeon",["Psychic"]],["Umbreon",["Dark"]],["Murkrow",["Dark","Flying"]],["Slowking",["Water","Psychic"]],["Misdreavus",["Ghost"]],["Unown",["Psychic"]],["Wobbuffet",["Psychic"]],["Girafarig",["Normal","Psychic"]],["Pineco",["Bug"]],["Forretress",["Bug","Steel"]],["Dunsparce",["Normal"]],["Gligar",["Ground","Flying"]],["Steelix",["Steel","Ground"]],["Snubbull",["Normal"]],["Granbull",["Normal"]],["Qwilfish",["Water","Poison"]],["Scizor",["Bug","Steel"]],["Shuckle",["Bug","Rock"]],["Heracross",["Bug","Fighting"]],["Sneasel",["Dark","Ice"]],["Teddiursa",["Normal"]],["Ursaring",["Normal"]],["Slugma",["Fire"]],["Magcargo",["Fire","Rock"]],["Swinub",["Ice","Ground"]],["Piloswine",["Ice","Ground"]],["Corsola",["Water","Rock"]],["Remoraid",["Water"]],["Octillery",["Water"]],["Delibird",["Ice","Flying"]],["Mantine",["Water","Flying"]],["Skarmory",["Steel","Flying"]],["Houndour",["Dark","Fire"]],["Houndoom",["Dark","Fire"]],["Kingdra",["Water","Dragon"]],["Phanpy",["Ground"]],["Donphan",["Ground"]],["Porygon2",["Normal"]],["Stantler",["Normal"]],["Smeargle",["Normal"]],["Tyrogue",["Fighting"]],["Hitmontop",["Fighting"]],["Smoochum",["Ice","Psychic"]],["Elekid",["Electric"]],["Magby",["Fire"]],["Miltank",["Normal"]],["Blissey",["Normal"]],["Raikou",["Electric"]],["Entei",["Fire"]],["Suicune",["Water"]],["Larvitar",["Rock","Ground"]],["Pupitar",["Rock","Ground"]],["Tyranitar",["Rock","Dark"]],["Lugia",["Psychic","Flying"]],["Ho-Oh",["Fire","Flying"]],["Celebi",["Psychic","Grass"]],["Treecko",["Grass"]],["Grovyle",["Grass"]],["Sceptile",["Grass"]],["Torchic",["Fire"]],["Combusken",["Fire","Fighting"]],["Blaziken",["Fire","Fighting"]],["Mudkip",["Water"]],["Marshtomp",["Water","Ground"]],["Swampert",["Water","Ground"]],["Poochyena",["Dark"]],["Mightyena",["Dark"]],["Zigzagoon",["Normal"]],["Linoone",["Normal"]],["Wurmple",["Bug"]],["Silcoon",["Bug"]],["Beautifly",["Bug","Flying"]],["Cascoon",["Bug"]],["Dustox",["Bug","Poison"]],["Lotad",["Water","Grass"]],["Lombre",["Water","Grass"]],["Ludicolo",["Water","Grass"]],["Seedot",["Grass"]],["Nuzleaf",["Grass","Dark"]],["Shiftry",["Grass","Dark"]],["Taillow",["Normal","Flying"]],["Swellow",["Normal","Flying"]],["Wingull",["Water","Flying"]],["Pelipper",["Water","Flying"]],["Ralts",["Psychic"]],["Kirlia",["Psychic"]],["Gardevoir",["Psychic"]],["Surskit",["Bug","Water"]],["Masquerain",["Bug","Flying"]],["Shroomish",["Grass"]],["Breloom",["Grass","Fighting"]],["Slakoth",["Normal"]],["Vigoroth",["Normal"]],["Slaking",["Normal"]],["Nincada",["Bug","Ground"]],["Ninjask",["Bug","Flying"]],["Shedinja",["Bug","Ghost"]],["Whismur",["Normal"]],["Loudred",["Normal"]],["Exploud",["Normal"]],["Makuhita",["Fighting"]],["Hariyama",["Fighting"]],["Azurill",["Normal"]],["Nosepass",["Rock"]],["Skitty",["Normal"]],["Delcatty",["Normal"]],["Sableye",["Dark","Ghost"]],["Mawile",["Steel"]],["Aron",["Steel","Rock"]],["Lairon",["Steel","Rock"]],["Aggron",["Steel","Rock"]],["Meditite",["Fighting","Psychic"]],["Medicham",["Fighting","Psychic"]],["Electrike",["Electric"]],["Manectric",["Electric"]],["Plusle",["Electric"]],["Minun",["Electric"]],["Volbeat",["Bug"]],["Illumise",["Bug"]],["Roselia",["Grass","Poison"]],["Gulpin",["Poison"]],["Swalot",["Poison"]],["Carvanha",["Water","Dark"]],["Sharpedo",["Water","Dark"]],["Wailmer",["Water"]],["Wailord",["Water"]],["Numel",["Fire","Ground"]],["Camerupt",["Fire","Ground"]],["Torkoal",["Fire"]],["Spoink",["Psychic"]],["Grumpig",["Psychic"]],["Spinda",["Normal"]],["Trapinch",["Ground"]],["Vibrava",["Ground","Dragon"]],["Flygon",["Ground","Dragon"]],["Cacnea",["Grass"]],["Cacturne",["Grass","Dark"]],["Swablu",["Normal","Flying"]],["Altaria",["Dragon","Flying"]],["Zangoose",["Normal"]],["Seviper",["Poison"]],["Lunatone",["Rock","Psychic"]],["Solrock",["Rock","Psychic"]],["Barboach",["Water","Ground"]],["Whiscash",["Water","Ground"]],["Corphish",["Water"]],["Crawdaunt",["Water","Dark"]],["Baltoy",["Ground","Psychic"]],["Claydol",["Ground","Psychic"]],["Lileep",["Rock","Grass"]],["Cradily",["Rock","Grass"]],["Anorith",["Rock","Bug"]],["Armaldo",["Rock","Bug"]],["Feebas",["Water"]],["Milotic",["Water"]],["Castform",["Normal"]],["Kecleon",["Normal"]],["Shuppet",["Ghost"]],["Banette",["Ghost"]],["Duskull",["Ghost"]],["Dusclops",["Ghost"]],["Tropius",["Grass","Flying"]],["Chimecho",["Psychic"]],["Absol",["Dark"]],["Wynaut",["Psychic"]],["Snorunt",["Ice"]],["Glalie",["Ice"]],["Spheal",["Ice","Water"]],["Sealeo",["Ice","Water"]],["Walrein",["Ice","Water"]],["Clamperl",["Water"]],["Huntail",["Water"]],["Gorebyss",["Water"]],["Relicanth",["Water","Rock"]],["Luvdisc",["Water"]],["Bagon",["Dragon"]],["Shelgon",["Dragon"]],["Salamence",["Dragon","Flying"]],["Beldum",["Steel","Psychic"]],["Metang",["Steel","Psychic"]],["Metagross",["Steel","Psychic"]],["Regirock",["Rock"]],["Regice",["Ice"]],["Registeel",["Steel"]],["Latias",["Dragon","Psychic"]],["Latios",["Dragon","Psychic"]],["Kyogre",["Water"]],["Groudon",["Ground"]],["Rayquaza",["Dragon","Flying"]],["Jirachi",["Steel","Psychic"]],["Deoxys",["Psychic"]]]; // index 0 = species #1 (Bulbasaur) ... index 385 = species #386 (Deoxys)
+
+/* Built-in baseline: vanilla Gen I-III species names/types (National Dex #1-386).
+   This is a starting point, not Brisk Emerald's actual data -- pokeemerald-expansion
+   hacks typically renumber/add many species beyond #386. Load a data file (top right)
+   to override or extend any of this with your hack's real tables; uploaded entries
+   always take priority over these defaults. */
+function buildDefaultSpecies(){
+  var obj = {};
+  DEFAULT_SPECIES_ARRAY.forEach(function(entry, i){
+    obj[String(i+1)] = { name: entry[0], types: entry[1] };
+  });
+  return obj;
+}
+
+var NAME_DATA = { species: buildDefaultSpecies(), moves:{}, items:{}, abilities:{} };
+var DEFAULT_SPECIES_COUNT = DEFAULT_SPECIES_ARRAY.length;
+
+var USER_DATA = { species:{}, moves:{}, items:{}, abilities:{} };
+
+function rebuildNameData(){
+  NAME_DATA.species = Object.assign({}, buildDefaultSpecies(), USER_DATA.species);
+  NAME_DATA.moves = Object.assign({}, USER_DATA.moves);
+  NAME_DATA.items = Object.assign({}, USER_DATA.items);
+  NAME_DATA.abilities = Object.assign({}, USER_DATA.abilities);
+}
+
+function loadNameDataFromStorage(){
+  try{
+    var raw = localStorage.getItem('briskdex_namedata_overrides');
+    if (raw){
+      var parsed = JSON.parse(raw);
+      USER_DATA.species = parsed.species || {};
+      USER_DATA.moves = parsed.moves || {};
+      USER_DATA.items = parsed.items || {};
+      USER_DATA.abilities = parsed.abilities || {};
+    }
+  }catch(e){ /* ignore */ }
+  rebuildNameData();
+}
+function saveNameDataToStorage(){
+  try{ localStorage.setItem('briskdex_namedata_overrides', JSON.stringify(USER_DATA)); }catch(e){}
+}
+
+function speciesName(id){
+  var entry = NAME_DATA.species[String(id)];
+  if (entry){ return (typeof entry === 'string') ? entry : (entry.name || ('Species #'+id)); }
+  return "Species #" + id;
+}
+function speciesTypes(id){
+  var entry = NAME_DATA.species[String(id)];
+  if (entry && typeof entry === 'object' && entry.types) return entry.types;
+  return null;
+}
+function speciesAbilityNames(id){
+  var entry = NAME_DATA.species[String(id)];
+  if (entry && typeof entry === 'object' && entry.abilities) return entry.abilities;
+  return null;
+}
+function abilityDisplayName(id, abilitySlot){
+  var list = speciesAbilityNames(id);
+  if (list && list.length){
+    var idx = Math.min(abilitySlot, list.length - 1);
+    return list[idx] || list[0] || null;
+  }
+  return null;
+}
+function moveName(id){
+  if (id === 0) return "—";
+  var entry = NAME_DATA.moves[String(id)];
+  if (entry) return entry;
+  return "Move #" + id;
+}
+function itemName(id){
+  if (id === 0) return "None";
+  var entry = NAME_DATA.items[String(id)];
+  if (entry) return entry;
+  return "Item #" + id;
+}
+
+/* ---- icons: loaded from a local folder (Electron only), keyed by species id ---- */
+var SPECIES_ICONS = {}; // id -> data URL
+function speciesIcon(id){
+  return SPECIES_ICONS[String(id)] || null;
+}
+async function loadIconFolder(){
+  if (!IS_ELECTRON){
+    showError('Loading a local icon folder needs the desktop app (browsers can\'t read arbitrary folders on disk).');
+    return;
+  }
+  try{
+    var result = await window.briskDexAPI.openIconFolderDialog();
+    if (!result) return;
+    var resolved = {};
+    var nameToId = {};
+    Object.keys(NAME_DATA.species).forEach(function(id){
+      var entry = NAME_DATA.species[id];
+      var constant = (entry && entry.constant) ? entry.constant : null;
+      if (constant) nameToId[constant.toLowerCase().replace(/_/g,'')] = id;
+    });
+    var unresolved = 0;
+    Object.keys(result.icons).forEach(function(key){
+      if (key.indexOf('name:') === 0){
+        var norm = key.slice(5).replace(/_/g,'').replace(/-/g,'');
+        var id = nameToId[norm];
+        if (id) resolved[id] = result.icons[key];
+        else unresolved++;
+      } else {
+        resolved[key] = result.icons[key];
+      }
+    });
+    SPECIES_ICONS = Object.assign({}, SPECIES_ICONS, resolved);
+    var msg = 'Loaded ' + Object.keys(resolved).length + ' icons from ' + result.folderPath + '.';
+    if (unresolved) msg += ' (' + unresolved + " couldn't be matched to a species \u2014 load your data JSON first so I know the name-to-ID mapping.)";
+    showNotice(msg);
+    if (currentSave) renderAll();
+  }catch(e){
+    showError('Could not load icons: ' + e.message);
+  }
+}
+
+/* ============================================================
+   Environment detection (plain browser vs. the Electron desktop app)
+   ============================================================ */
+var IS_ELECTRON = !!(window.briskDexAPI);
+
+/* ============================================================
+   External storage — Pokémon kept outside any single save file.
+   Each entry stores the exact original 80 encrypted bytes, so
+   withdrawing one back into a box is a byte-perfect round trip.
+   ============================================================ */
+var externalStorage = [];
+var dirty = false;
+
+function genId(){ return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+async function loadExternalStorage(){
+  if (IS_ELECTRON){
+    try{ externalStorage = await window.briskDexAPI.loadStorage() || []; }catch(e){ externalStorage = []; }
+  } else {
+    try{
+      var raw = localStorage.getItem('briskdex_external_storage');
+      externalStorage = raw ? JSON.parse(raw) : [];
+    }catch(e){ externalStorage = []; }
+  }
+}
+async function persistExternalStorage(){
+  if (IS_ELECTRON){
+    try{ await window.briskDexAPI.saveStorage(externalStorage); }catch(e){ showError('Could not save external storage: ' + e.message); }
+  } else {
+    try{ localStorage.setItem('briskdex_external_storage', JSON.stringify(externalStorage)); }catch(e){ showError('Could not save external storage locally: ' + e.message); }
+  }
+}
+
+function addToStorage(mon){
+  var raw80 = mon.rawRecord.length >= 80 ? mon.rawRecord.subarray(0,80) : mon.rawRecord;
+  externalStorage.push({
+    id: genId(),
+    raw80: bytesToBase64(raw80),
+    depositedAt: Date.now(),
+    sourceTrainer: currentSave.trainer.name,
+    sourceId: currentSave.trainer.publicId
+  });
+  persistExternalStorage();
+}
+
+function markDirty(){ dirty = true; updateDirtyBanner(); }
+function clearDirty(){ dirty = false; updateDirtyBanner(); }
+
+function depositFromBox(boxIndex, slotIndex){
+  var mon = currentSave.boxes[boxIndex][slotIndex];
+  if (!mon || mon.empty) return;
+  addToStorage(mon);
+  var logicalOffset = 4 + (boxIndex*30 + slotIndex)*80;
+  var touched = writeLogicalPCBytes(currentSave, logicalOffset, new Uint8Array(80));
+  touched.forEach(function(id){ recomputeChecksum(currentSave, id); });
+  currentSave.boxes[boxIndex][slotIndex] = { empty:true };
+  markDirty();
+}
+
+function depositFromParty(partyIndex){
+  var mon = currentSave.party[partyIndex];
+  if (!mon) return;
+  addToStorage(mon);
+  var oldSize = currentSave.party.length;
+  var newParty = currentSave.party.slice();
+  newParty.splice(partyIndex, 1);
+  for (var i=0;i<newParty.length;i++){
+    writePartyBytes(currentSave, 0x0238 + i*100, newParty[i].rawRecord);
+  }
+  for (var j=newParty.length; j<oldSize; j++){
+    writePartyBytes(currentSave, 0x0238 + j*100, new Uint8Array(100));
+  }
+  var view1 = currentSave._internal.sectionView[1];
+  var dv1 = new DataView(view1.buffer, view1.byteOffset, view1.length);
+  dv1.setUint32(0x0234, newParty.length, true);
+  recomputeChecksum(currentSave, 1);
+  currentSave.party = newParty;
+  markDirty();
+}
+
+function withdrawToSlot(storageId, boxIndex, slotIndex){
+  var target = currentSave.boxes[boxIndex][slotIndex];
+  if (target && !target.empty){ showError('That box slot is already occupied.'); return false; }
+  var idx = externalStorage.findIndex(function(e){ return e.id === storageId; });
+  if (idx === -1) return false;
+  var entry = externalStorage[idx];
+  var raw80 = base64ToBytes(entry.raw80);
+  var logicalOffset = 4 + (boxIndex*30 + slotIndex)*80;
+  var touched = writeLogicalPCBytes(currentSave, logicalOffset, raw80);
+  touched.forEach(function(id){ recomputeChecksum(currentSave, id); });
+  currentSave.boxes[boxIndex][slotIndex] = decodePokemon(raw80, false);
+  externalStorage.splice(idx, 1);
+  persistExternalStorage();
+  markDirty();
+  return true;
+}
+
+async function saveChangesToFile(){
+  if (!currentSave) return;
+  if (IS_ELECTRON && currentSave.filePath){
+    try{
+      var res = await window.briskDexAPI.writeSav(currentSave.filePath, currentSave._internal.rawBytes);
+      if (res && res.ok){
+        clearDirty();
+        showNotice('Saved. A backup of the previous file was kept at ' + res.backupPath);
+      } else {
+        showError('Could not write the save file: ' + (res && res.error ? res.error : 'unknown error'));
+      }
+    }catch(e){ showError('Could not write the save file: ' + e.message); }
+  } else {
+    var blob = new Blob([currentSave._internal.rawBytes], {type:'application/octet-stream'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var fname = (currentSave.trainer.name || 'save').toLowerCase().replace(/[^a-z0-9]/g,'') || 'brisk-emerald';
+    a.href = url; a.download = fname + '-updated.sav';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    clearDirty();
+    showNotice('Downloaded an updated .sav file. Replace your original save file with this one to keep the changes in-game.');
+  }
+}
+
+/* ============================================================
+   UI rendering
+   ============================================================ */
+var currentSave = null;
+var activeBoxIndex = 0;
+
+function el(tag, attrs, children){
+  var e = document.createElement(tag);
+  if (attrs){
+    Object.keys(attrs).forEach(function(k){
+      if (k === 'class') e.className = attrs[k];
+      else if (k === 'html') e.innerHTML = attrs[k];
+      else if (k === 'text') e.textContent = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    });
+  }
+  (children||[]).forEach(function(c){ if (c) e.appendChild(c); });
+  return e;
+}
+
+function showError(msg){
+  var area = document.getElementById('error-area');
+  area.innerHTML = '';
+  area.appendChild(el('div', {class:'error-banner', text: msg}));
+}
+function clearError(){
+  document.getElementById('error-area').innerHTML = '';
+}
+function showNotice(msg){
+  var area = document.getElementById('error-area');
+  area.innerHTML = '';
+  area.appendChild(el('div', {class:'notice-banner', text: msg}));
+}
+
+function updateDirtyBanner(){
+  var bar = document.getElementById('dirty-bar');
+  if (!currentSave){ bar.style.display = 'none'; return; }
+  bar.style.display = dirty ? 'flex' : 'none';
+}
+
+function updateDataStatus(){
+  var panel = document.getElementById('data-status');
+  var customS = Object.keys(USER_DATA.species).length;
+  var customM = Object.keys(USER_DATA.moves).length;
+  var customI = Object.keys(USER_DATA.items).length;
+  var withAbilities = 0;
+  Object.keys(USER_DATA.species).forEach(function(id){
+    var e = USER_DATA.species[id];
+    if (e && e.abilities && e.abilities.length) withAbilities++;
+  });
+  panel.style.display = 'block';
+  panel.innerHTML = '';
+  panel.appendChild(el('span', {}, [document.createTextNode(
+    'Built-in baseline: ' + DEFAULT_SPECIES_COUNT + ' vanilla Gen I\u2013III species (names/types only). '
+  )]));
+  if (customS || customM || customI){
+    var strong = el('strong', {text: 'Your data: ' + customS + ' species (' + withAbilities + ' with abilities), ' + customM + ' moves, ' + customI + ' items overridden/added.'});
+    panel.appendChild(strong);
+  } else {
+    panel.appendChild(el('span', {class:'tag-ok', text:'Load your Brisk Emerald data to override/extend this and add move & item names.'}));
+  }
+  var row = el('div', {class:'row'});
+  if (customS || customM || customI){
+    var clearBtn = el('button', {class:'ghost', text:'Clear your custom data'});
+    clearBtn.addEventListener('click', function(){
+      USER_DATA = {species:{}, moves:{}, items:{}};
+      try{ localStorage.removeItem('briskdex_namedata_overrides'); }catch(e){}
+      rebuildNameData();
+      updateDataStatus();
+      if (currentSave) renderAll();
+    });
+    row.appendChild(clearBtn);
+  }
+  panel.appendChild(row);
+}
+
+function formatMoney(n){
+  return '₽' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function formatPlaytime(t){
+  var h = t.hours, m = ('0'+t.minutes).slice(-2), s = ('0'+t.seconds).slice(-2);
+  return h + ':' + m + ':' + s;
+}
+
+function renderTrainerCard(save){
+  var c = document.getElementById('trainer-card');
+  c.innerHTML = '';
+  var t = save.trainer;
+  var idBlock = el('div', {class:'trainer-id'}, [
+    el('div', {class:'trainer-badge'}),
+    el('div', {}, [
+      el('h2', {text: t.name}),
+      el('span', {text: t.gender + ' Trainer · ID No. ' + String(t.publicId).padStart(5,'0')})
+    ])
+  ]);
+  var stats = el('div', {class:'trainer-stats'}, [
+    statBlock('Money', formatMoney(save.money)),
+    statBlock('Play Time', formatPlaytime(t)),
+    statBlock('Party', save.party.length + ' / 6'),
+    statBlock('Boxed', countBoxed(save) + ' / 420')
+  ]);
+  c.appendChild(idBlock);
+  c.appendChild(stats);
+}
+function statBlock(label, value){
+  return el('div', {class:'stat'}, [
+    el('div', {class:'label', text:label}),
+    el('div', {class:'value', text:value})
+  ]);
+}
+function countBoxed(save){
+  var n = 0;
+  save.boxes.forEach(function(box){ box.forEach(function(m){ if (m && !m.empty) n++; }); });
+  return n;
+}
+
+function hpColor(pct){
+  if (pct > 0.5) return 'var(--hp-full)';
+  if (pct > 0.2) return 'var(--hp-mid)';
+  return 'var(--hp-low)';
+}
+
+function makeIconEl(speciesId, className){
+  var url = speciesIcon(speciesId);
+  if (url){
+    var img = document.createElement('img');
+    img.src = url;
+    img.className = className;
+    img.style.objectFit = 'contain';
+    img.style.background = 'transparent';
+    return img;
+  }
+  return el('div', {class: className});
+}
+
+function renderPartyCard(mon, partyIndex){
+  var card = el('div', {class:'mon-card'});
+  var pct = mon.maxHP ? (mon.currentHP / mon.maxHP) : 1;
+  var displayName = mon.nickname && mon.nickname !== speciesName(mon.species).toUpperCase() ? mon.nickname : speciesName(mon.species);
+
+  card.appendChild(el('div', {class:'row1'}, [
+    makeIconEl(mon.species, 'card-icon'),
+    el('div', {style:'flex:1;'}, [
+      el('div', {class:'name', text: displayName}),
+      el('div', {class:'species', text: speciesName(mon.species) + (mon.isShiny ? ' ★' : '')})
+    ]),
+    el('div', {class:'lvl', text:'Lv' + mon.level})
+  ]));
+
+  if (mon.maxHP){
+    var bar = el('div', {class:'hp-bar'});
+    var fill = el('div', {style:'width:'+(pct*100)+'%; background:'+hpColor(pct)+';'});
+    bar.appendChild(fill);
+    card.appendChild(bar);
+    card.appendChild(el('div', {class:'hp-text', text: mon.currentHP + ' / ' + mon.maxHP + ' HP'}));
+  }
+
+  var types = speciesTypes(mon.species);
+  if (types){
+    var tr = el('div', {class:'types-row'});
+    types.forEach(function(ty){
+      var pill = el('span', {class:'type-pill', text:ty});
+      pill.style.background = TYPE_COLORS[ty] || 'var(--muted-2)';
+      tr.appendChild(pill);
+    });
+    card.appendChild(tr);
+  }
+
+  var moveNames = mon.moves.filter(function(m){return m>0;}).map(moveName);
+  if (moveNames.length){
+    card.appendChild(el('div', {class:'moves-mini', text: moveNames.join(' · ')}));
+  }
+
+  card.addEventListener('click', function(){ openModal(mon, {type:'party', index: partyIndex}); });
+  return card;
+}
+
+function renderParty(save){
+  var grid = document.getElementById('party-grid');
+  grid.innerHTML = '';
+  document.getElementById('party-count').textContent = save.party.length + ' of 6';
+  if (save.party.length === 0){
+    grid.appendChild(el('div', {class:'notice-banner', text:'No Pokémon currently in the party.'}));
+    return;
+  }
+  save.party.forEach(function(mon, i){ grid.appendChild(renderPartyCard(mon, i)); });
+}
+
+function renderBoxTabs(save){
+  var tabs = document.getElementById('box-tabs');
+  tabs.innerHTML = '';
+  save.boxNames.forEach(function(name, i){
+    var count = save.boxes[i].filter(function(m){return m && !m.empty;}).length;
+    var btn = el('button', {text: name, class: i===activeBoxIndex ? 'active':''});
+    btn.title = count + ' Pokémon';
+    btn.addEventListener('click', function(){
+      activeBoxIndex = i;
+      renderBoxTabs(save);
+      renderBoxGrid(save);
+    });
+    tabs.appendChild(btn);
+  });
+}
+
+function renderBoxGrid(save){
+  var grid = document.getElementById('box-grid');
+  grid.innerHTML = '';
+  var box = save.boxes[activeBoxIndex];
+  var boxed = box.filter(function(m){return m && !m.empty;}).length;
+  document.getElementById('box-count').textContent = countBoxed(save) + ' total across 14 boxes';
+  box.forEach(function(mon, slotIndex){
+    if (!mon || mon.empty){
+      grid.appendChild(el('div', {class:'slot empty'}));
+      return;
+    }
+    var slot = el('div', {class:'slot'});
+    var icon = makeIconEl(mon.species, 'mini-icon');
+    slot.appendChild(icon);
+    slot.appendChild(el('div', {class:'mini-name', text: mon.nickname || speciesName(mon.species)}));
+    slot.appendChild(el('div', {class:'mini-lvl', text:'Lv' + mon.level}));
+    if (mon.isShiny) slot.appendChild(el('div', {class:'shiny-star', text:'★'}));
+    slot.addEventListener('click', function(){ openModal(mon, {type:'box', box:activeBoxIndex, slot:slotIndex}); });
+    grid.appendChild(slot);
+  });
+}
+
+function ivTotal(ivs){ return ivs.hp+ivs.atk+ivs.def+ivs.spd+ivs.spa+ivs.spdef; }
+function evTotal(evs){ return evs.hp+evs.atk+evs.def+evs.spd+evs.spa+evs.spdef; }
+
+function openModal(mon, loc){
+  var root = document.getElementById('modal-root');
+  root.innerHTML = '';
+  var overlay = el('div', {class:'modal-overlay'});
+  var modal = el('div', {class:'modal'});
+
+  var closeBtn = el('button', {class:'ghost modal-close', text:'Close'});
+  closeBtn.addEventListener('click', function(){ root.innerHTML=''; });
+  modal.appendChild(closeBtn);
+
+  var displayName = mon.nickname || speciesName(mon.species);
+  modal.appendChild(el('h2', {text: displayName + (mon.isShiny ? ' ★' : '')}));
+  modal.appendChild(el('div', {class:'sub', text: speciesName(mon.species) + ' · Lv' + mon.level + ' · ' + mon.nature + ' nature'}));
+
+  var dg = el('div', {class:'detail-grid'});
+  dg.appendChild(detailBlock('Held Item', itemName(mon.heldItem)));
+  dg.appendChild(detailBlock('Ability', abilityDisplayName(mon.species, mon.abilitySlot) || ('Slot ' + (mon.abilitySlot === 1 ? '2' : '1') + ' (unknown \u2014 load ability data)')));
+  dg.appendChild(detailBlock('OT', mon.otName + ' (' + mon.otGender + ')'));
+  dg.appendChild(detailBlock('OT ID', String(mon.otId & 0xFFFF).padStart(5,'0')));
+  dg.appendChild(detailBlock('Friendship', String(mon.friendship)));
+  dg.appendChild(detailBlock('Experience', mon.experience.toLocaleString()));
+  modal.appendChild(dg);
+
+  if (mon.maxHP){
+    var statTable = el('table', {class:'stat-table full'});
+    var rows = [
+      ['HP', mon.currentHP + ' / ' + mon.maxHP],
+      ['Attack', mon.atk], ['Defense', mon.def],
+      ['Sp. Attack', mon.spAtk], ['Sp. Defense', mon.spDef], ['Speed', mon.speed]
+    ];
+    rows.forEach(function(r){
+      var tr = document.createElement('tr');
+      tr.appendChild(el('td', {text:r[0]}));
+      tr.appendChild(el('td', {text:String(r[1])}));
+      statTable.appendChild(tr);
+    });
+    modal.appendChild(statTable);
+  }
+
+  var ivDiv = el('div', {class:'full', style:'margin-top:14px;'});
+  ivDiv.appendChild(el('div', {class:'k', text:'IVs (total ' + ivTotal(mon.ivs) + '/186)'}));
+  ivDiv.appendChild(el('div', {class:'v', text:
+    'HP ' + mon.ivs.hp + ' · Atk ' + mon.ivs.atk + ' · Def ' + mon.ivs.def + ' · SpA ' + mon.ivs.spa + ' · SpD ' + mon.ivs.spdef + ' · Spe ' + mon.ivs.spd
+  }));
+  modal.appendChild(ivDiv);
+
+  var evDiv = el('div', {class:'full', style:'margin-top:10px;'});
+  evDiv.appendChild(el('div', {class:'k', text:'EVs (total ' + evTotal(mon.evs) + '/510)'}));
+  evDiv.appendChild(el('div', {class:'v', text:
+    'HP ' + mon.evs.hp + ' · Atk ' + mon.evs.atk + ' · Def ' + mon.evs.def + ' · SpA ' + mon.evs.spa + ' · SpD ' + mon.evs.spdef + ' · Spe ' + mon.evs.spd
+  }));
+  modal.appendChild(evDiv);
+
+  var movesLabel = el('div', {class:'k', text:'Moves', style:'margin-top:16px;'});
+  modal.appendChild(movesLabel);
+  var movesList = el('div', {class:'moves-list'});
+  for (var i=0;i<4;i++){
+    if (mon.moves[i] === 0) continue;
+    var chip = el('div', {class:'move-chip'});
+    chip.appendChild(document.createTextNode(moveName(mon.moves[i])));
+    chip.appendChild(el('span', {class:'pp', text:' — ' + mon.pp[i] + ' PP'}));
+    movesList.appendChild(chip);
+  }
+  modal.appendChild(movesList);
+
+  if (mon.pokerus & 0x0F || (mon.pokerus >> 4)){
+    modal.appendChild(el('div', {class:'k', text:'Pokérus', style:'margin-top:14px;'}));
+    var strain = mon.pokerus >> 4, days = mon.pokerus & 0x0F;
+    modal.appendChild(el('div', {class:'v', text: strain > 0 ? ('Infected, strain ' + strain + ', ' + days + ' days left') : 'Cured'}));
+  }
+
+  if (loc && (loc.type === 'party' || loc.type === 'box')){
+    var actionRow = el('div', {style:'margin-top:20px; padding-top:16px; border-top:1px solid var(--line-soft);'});
+    var depositBtn = el('button', {class:'primary', text:'Move to External Storage'});
+    depositBtn.addEventListener('click', function(){
+      if (loc.type === 'party') depositFromParty(loc.index);
+      else depositFromBox(loc.box, loc.slot);
+      root.innerHTML = '';
+      renderAll();
+    });
+    actionRow.appendChild(depositBtn);
+    modal.appendChild(actionRow);
+  }
+  if (loc && loc.type === 'storage'){
+    var actionRow2 = el('div', {style:'margin-top:20px; padding-top:16px; border-top:1px solid var(--line-soft);'});
+    var withdrawBtn = el('button', {class:'primary', text:'Withdraw to a Box\u2026'});
+    withdrawBtn.addEventListener('click', function(){
+      root.innerHTML = '';
+      openSlotPicker(loc.storageId);
+    });
+    actionRow2.appendChild(withdrawBtn);
+    modal.appendChild(actionRow2);
+  }
+
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) root.innerHTML=''; });
+  root.appendChild(overlay);
+}
+function detailBlock(label, value){
+  return el('div', {}, [
+    el('div', {class:'k', text:label}),
+    el('div', {class:'v', text:value})
+  ]);
+}
+
+function openSlotPicker(storageId){
+  var root = document.getElementById('modal-root');
+  root.innerHTML = '';
+  var overlay = el('div', {class:'modal-overlay'});
+  var modal = el('div', {class:'modal'});
+  var closeBtn = el('button', {class:'ghost modal-close', text:'Close'});
+  closeBtn.addEventListener('click', function(){ root.innerHTML=''; });
+  modal.appendChild(closeBtn);
+  modal.appendChild(el('h2', {text:'Choose an empty box slot'}));
+  modal.appendChild(el('div', {class:'sub', text:'Click any open slot to withdraw this Pokémon into it.'}));
+
+  var pickerBoxIndex = activeBoxIndex;
+  var tabs = el('div', {class:'box-tabs', style:'margin-top:14px; border-radius:8px; border:1px solid var(--line);'});
+  var gridWrap = el('div', {class:'box-grid', style:'padding:14px 0 0;'});
+
+  function renderPickerGrid(){
+    gridWrap.innerHTML = '';
+    currentSave.boxes[pickerBoxIndex].forEach(function(mon, slotIndex){
+      if (mon && !mon.empty){
+        var occ = el('div', {class:'slot empty'});
+        occ.title = mon.nickname || speciesName(mon.species);
+        gridWrap.appendChild(occ);
+        return;
+      }
+      var slot = el('div', {class:'slot'});
+      slot.style.borderColor = 'var(--leaf)';
+      slot.appendChild(el('div', {class:'mini-name', text:'Empty'}));
+      slot.addEventListener('click', function(){
+        var ok = withdrawToSlot(storageId, pickerBoxIndex, slotIndex);
+        if (ok){ root.innerHTML=''; renderAll(); }
+      });
+      gridWrap.appendChild(slot);
+    });
+  }
+  function renderPickerTabs(){
+    tabs.innerHTML = '';
+    currentSave.boxNames.forEach(function(name, i){
+      var btn = el('button', {text:name, class: i===pickerBoxIndex ? 'active':''});
+      btn.addEventListener('click', function(){ pickerBoxIndex = i; renderPickerTabs(); renderPickerGrid(); });
+      tabs.appendChild(btn);
+    });
+  }
+  renderPickerTabs();
+  renderPickerGrid();
+  modal.appendChild(tabs);
+  modal.appendChild(gridWrap);
+
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', function(e){ if (e.target === overlay) root.innerHTML=''; });
+  root.appendChild(overlay);
+}
+
+function renderStoragePanel(){
+  var section = document.getElementById('storage-section');
+  var grid = document.getElementById('storage-grid');
+  grid.innerHTML = '';
+  document.getElementById('storage-count').textContent = externalStorage.length + ' stored';
+  if (externalStorage.length === 0){
+    grid.appendChild(el('div', {class:'notice-banner', text:'No Pokémon in external storage yet. Open a Pokémon from your party or a box and choose "Move to External Storage".'}));
+    return;
+  }
+  externalStorage.forEach(function(entry){
+    var raw80 = base64ToBytes(entry.raw80);
+    var mon = decodePokemon(raw80, false);
+    // storage cards open in 'storage' context and have no HP bar (box-form data)
+    var freshCard = el('div', {class:'mon-card'});
+    freshCard.appendChild(el('div', {class:'row1'}, [
+      makeIconEl(mon.species, 'card-icon'),
+      el('div', {style:'flex:1;'}, [
+        el('div', {class:'name', text: mon.nickname || speciesName(mon.species)}),
+        el('div', {class:'species', text: speciesName(mon.species) + (mon.isShiny ? ' ★' : '')})
+      ]),
+      el('div', {class:'lvl', text:'Lv' + mon.level})
+    ]));
+    freshCard.appendChild(el('div', {class:'moves-mini', text:'From ' + entry.sourceTrainer + ' · ' + new Date(entry.depositedAt).toLocaleDateString()}));
+    freshCard.addEventListener('click', function(){ openModal(mon, {type:'storage', storageId: entry.id}); });
+    grid.appendChild(freshCard);
+  });
+}
+
+function renderAll(){
+  renderTrainerCard(currentSave);
+  renderParty(currentSave);
+  activeBoxIndex = Math.min(activeBoxIndex, 13);
+  renderBoxTabs(currentSave);
+  renderBoxGrid(currentSave);
+  renderStoragePanel();
+  updateDirtyBanner();
+}
+
+/* ============================================================
+   File loading
+   ============================================================ */
+function handleSavFile(file){
+  clearError();
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var save = parseSav(e.target.result);
+      currentSave = save;
+      dirty = false;
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('app-content').style.display = 'block';
+      renderAll();
+    }catch(err){
+      showError(err.message || String(err));
+    }
+  };
+  reader.onerror = function(){ showError('Could not read the file.'); };
+  reader.readAsArrayBuffer(file);
+}
+
+async function handleSavFromElectron(){
+  clearError();
+  try{
+    var result = await window.briskDexAPI.openSavDialog();
+    if (!result) return; // user cancelled
+    var save = parseSav(result.buffer.buffer ? result.buffer.buffer : result.buffer);
+    save.filePath = result.filePath;
+    currentSave = save;
+    dirty = false;
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    renderAll();
+  }catch(err){
+    showError(err.message || String(err));
+  }
+}
+
+function handleDataFile(file){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var parsed = JSON.parse(e.target.result);
+      USER_DATA.species = Object.assign({}, USER_DATA.species, parsed.species || {});
+      USER_DATA.moves = Object.assign({}, USER_DATA.moves, parsed.moves || {});
+      USER_DATA.items = Object.assign({}, USER_DATA.items, parsed.items || {});
+      rebuildNameData();
+      saveNameDataToStorage();
+      updateDataStatus();
+      if (currentSave) renderAll();
+    }catch(err){
+      showError('Could not parse that JSON file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ============================================================
+   Wiring
+   ============================================================ */
+document.getElementById('btn-load-sav').addEventListener('click', function(){
+  if (IS_ELECTRON) handleSavFromElectron();
+  else document.getElementById('file-sav').click();
+});
+document.getElementById('btn-load-sav-2').addEventListener('click', function(){
+  if (IS_ELECTRON) handleSavFromElectron();
+  else document.getElementById('file-sav').click();
+});
+document.getElementById('btn-load-data').addEventListener('click', function(){
+  document.getElementById('file-data').click();
+});
+document.getElementById('btn-load-icons').addEventListener('click', function(){
+  loadIconFolder();
+});
+document.getElementById('btn-save-changes').addEventListener('click', function(){
+  saveChangesToFile();
+});
+document.getElementById('file-sav').addEventListener('change', function(e){
+  if (e.target.files[0]) handleSavFile(e.target.files[0]);
+});
+document.getElementById('file-data').addEventListener('change', function(e){
+  if (e.target.files[0]) handleDataFile(e.target.files[0]);
+});
+
+var dz = document.getElementById('empty-state');
+['dragenter','dragover'].forEach(function(ev){
+  dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.add('drag'); });
+});
+['dragleave','drop'].forEach(function(ev){
+  dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('drag'); });
+});
+dz.addEventListener('drop', function(e){
+  var f = e.dataTransfer.files[0];
+  if (f && !IS_ELECTRON) handleSavFile(f);
+});
+document.body.addEventListener('dragover', function(e){ e.preventDefault(); });
+document.body.addEventListener('drop', function(e){
+  if (e.target.closest('#empty-state')) return;
+  e.preventDefault();
+  var f = e.dataTransfer.files[0];
+  if (f && currentSave === null && !IS_ELECTRON) handleSavFile(f);
+});
+
+loadNameDataFromStorage();
+updateDataStatus();
+loadExternalStorage();
+
+window.__briskDexDebug = function(){
+  var party = currentSave ? currentSave.party.map(function(m){ return m.species; }) : [];
+  var sampleId = Object.keys(NAME_DATA.species)[0];
+  return {
+    isElectron: IS_ELECTRON,
+    hasSaveLoaded: !!currentSave,
+    iconCount: Object.keys(SPECIES_ICONS).length,
+    iconSampleKeys: Object.keys(SPECIES_ICONS).slice(0, 10),
+    partySpeciesIds: party,
+    partyIconHits: party.map(function(id){ return { species: id, hasIcon: !!SPECIES_ICONS[String(id)] }; }),
+    userDataSpeciesCount: Object.keys(USER_DATA.species).length,
+    sampleSpeciesEntry: sampleId ? { id: sampleId, entry: NAME_DATA.species[sampleId] } : null,
+    firstPartyMonSpeciesEntry: party.length ? { id: party[0], entry: NAME_DATA.species[String(party[0])] } : null
+  };
+};
+
+})();
+</script>
+</body>
+</html>
