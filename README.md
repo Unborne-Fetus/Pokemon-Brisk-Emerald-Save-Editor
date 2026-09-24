@@ -1,3 +1,6 @@
+Made with Claude vibe coding
+
+
 # Brisk Dex Desktop
 
 The desktop build of Brisk Dex — the companion app for Pokémon Brisk Emerald.
